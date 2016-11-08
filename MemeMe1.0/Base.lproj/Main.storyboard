@@ -94,7 +94,7 @@
                         <outlet property="buttomTextField" destination="E9v-1v-0fL" id="50d-YK-PYG"/>
                         <outlet property="cameraBarButton" destination="JQX-nQ-Suh" id="xAr-yU-KPx"/>
                         <outlet property="cancelButton" destination="8K1-AK-tSI" id="rHD-Vq-5Fd"/>
-                        <outlet property="imagePickerVIew" destination="wTI-XB-acD" id="YVA-4y-REJ"/>
+                        <outlet property="imagePickerView" destination="wTI-XB-acD" id="zI5-XW-aC1"/>
                         <outlet property="navigatonBar" destination="IFs-fs-ida" id="Icc-gj-Nbj"/>
                         <outlet property="shareButton" destination="B60-u2-8Ng" id="nAs-Gj-ysG"/>
                         <outlet property="toolBar" destination="VHR-z4-Cy7" id="6en-qR-ZH7"/>

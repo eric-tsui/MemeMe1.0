@@ -13,7 +13,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     
     // MARK: - Outlets
     
-    @IBOutlet weak var imagePickerVIew: UIImageView!
+    @IBOutlet weak var imagePickerView: UIImageView!
     @IBOutlet weak var cameraBarButton: UIBarButtonItem!
     @IBOutlet weak var topTextField: UITextField!
     @IBOutlet weak var buttomTextField: UITextField!
@@ -26,8 +26,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     
     let memeDelegate = memeTextFieldDelegate()
     enum ToolBarButtonItem: Int{
-        case Camera = 0
-        case Album  = 1
+        case camera = 0
+        case album  = 1
     }
     
     // MARK: - Actions
@@ -40,9 +40,9 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         
         //Pick a new image from Camera or Album
         switch ToolBarButtonItem(rawValue: sender.tag)! {
-        case .Camera:
+        case .camera:
             pickerController.sourceType = UIImagePickerControllerSourceType.camera
-        case .Album:
+        case .album:
             pickerController.sourceType =
                 UIImagePickerControllerSourceType.photoLibrary
         }
@@ -59,8 +59,16 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         // pass the ActivityViewController a memedImage as an activity item
         let shareVC = UIActivityViewController(activityItems: [latestMemedImage], applicationActivities: nil)
         
+        shareVC.completionWithItemsHandler = {
+            (activityType, completed, returnedItem, error) in
+            if completed {
+                self.saveMeme(image: latestMemedImage)
+            }
+        }
+        
         // present the ActivityViewController
         present(shareVC, animated: true, completion: nil)
+
     }
     
     //Exit the Meme
@@ -76,7 +84,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         
         cameraBarButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera)
         
-        shareButton.isEnabled  = (imagePickerVIew.image != nil)
+        shareButton.isEnabled  = (imagePickerView.image != nil)
         cancelButton.isEnabled = false
         
         self.subscribeToKeyboardNotifications()
@@ -97,14 +105,14 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         
         //default Meme txt
         topTextField.text = "TOP"
-        buttomTextField.text = "BUTTOM"
+        buttomTextField.text = "BOTTOM"
     }
     
     // MARK: - Private methods
     
-    // MARK: Generate and Save Meme
+    // MARK: Generate Memed Image and Save as Meme
     
-    //Generate Memed Image, save it to Meme struct instance, then return the memedImage
+    //Generate Memed Image, then return the memedImage
     private func generateMemedImage() -> UIImage {
         
         //Hide toolbar and navbar
@@ -121,20 +129,19 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         navigatonBar.isHidden = false
         toolBar.isHidden = false
         
-        //Save function, to save it as Meme struct
-        func saveMeme(){
-            //Create the Meme struct instance
-            let meme = Meme(topText: topTextField.text!, buttomText: buttomTextField.text!,
-                            originImage: imagePickerVIew.image!, memedImage: genMemedImage)
-            //Append it to the Memes Array in the Application Delegate
-            (UIApplication.shared.delegate as! AppDelegate).memes.append(meme)
-        }
-        
-        //Save it
-        saveMeme()
-        
         //Return generated image
         return genMemedImage
+    }
+    
+    
+    //Save Meme, which is a struct that contains Memed Image and related meta data
+    func saveMeme(image: UIImage){
+        
+        //Create the Meme struct instance
+        let meme = Meme(topText: topTextField.text!, buttomText: buttomTextField.text!,
+                        originImage: imagePickerView.image!, memedImage: image)
+        //Append it to the Memes Array in the Application Delegate
+        (UIApplication.shared.delegate as! AppDelegate).memes.append(meme)
     }
     
     // MARK: Util to setup Text Field
@@ -189,7 +196,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
-            imagePickerVIew.image = image
+            imagePickerView.image = image
         }
         
         picker.dismiss(animated: true, completion: nil)
