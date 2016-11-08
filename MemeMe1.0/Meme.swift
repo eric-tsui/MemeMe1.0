@@ -19,13 +19,14 @@ struct Meme{
     let memedImage: UIImage
     
     //MARK: Initializers
-    
-    init(text: [String], image: UIImage, memedImage: UIImage) {
-        self.topText = text[0]
-        self.buttomText = text[1]
-        self.originImage = image
-        self.memedImage = memedImage
-    }
+  
+//    
+//    init(text: [String], image: UIImage, memedImage: UIImage) {
+//        self.topText = text[0]
+//        self.buttomText = text[1]
+//        self.originImage = image
+//        self.memedImage = memedImage
+//    }
     
 }
 

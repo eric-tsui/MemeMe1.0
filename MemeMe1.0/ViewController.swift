@@ -106,7 +106,10 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         present(shareVC, animated: true) {
             
             //Create the meme
-            let meme = Meme(text: [self.topTextField.text!, self.buttomTextField.text!], image: self.imagePickerVIew.image!, memedImage: image)
+//            let meme = Meme(text: [self.topTextField.text!, self.buttomTextField.text!], image: self.imagePickerVIew.image!, memedImage: image)
+            
+            let meme = Meme(topText: self.topTextField.text!, buttomText: self.buttomTextField.text!,
+                            originImage: self.imagePickerVIew.image!, memedImage: image)
             
             //Add it to the memes array in the Application Delegate
             (UIApplication.shared.delegate as! AppDelegate).memes.append(meme)
