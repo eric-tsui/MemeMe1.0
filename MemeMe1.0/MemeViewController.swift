@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     
     // MARK: Outlets
@@ -24,12 +24,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     // MARK: Text Field Delegate Objects
     
-    let memeTextAttributtes = [
-        NSStrokeColorAttributeName: UIColor.black,
-        NSForegroundColorAttributeName: UIColor.white,
-        NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-        NSStrokeWidthAttributeName: -3.0
-    ] as [String : Any]
     let memeDelegate = memeTextFieldDelegate()
     
     // MARK: Pick an Image
@@ -144,24 +138,28 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         self.unsubscribeToKeyboardNotifications()
     }
     
+    private func setupTextField(textField: UITextField, memeText: String) {
+        let memeTextAttributtes = [
+            NSStrokeColorAttributeName: UIColor.black,
+            NSForegroundColorAttributeName: UIColor.white,
+            NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+            NSStrokeWidthAttributeName: -3.0
+            ] as [String : Any]
+        
+        textField.defaultTextAttributes = memeTextAttributtes
+        //need to put textAlignmnet after defaultTextAttributes assignment,otherwise the alignment will not make effect
+        textField.textAlignment = .center
+        textField.delegate = memeDelegate
+        
+        textField.text = memeText
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        topTextField.text = "TOP"
-        buttomTextField.text = "BUTTOM"
-        
-        topTextField.defaultTextAttributes = memeTextAttributtes
-        buttomTextField.defaultTextAttributes = memeTextAttributtes
-        
-        //need to put textAlignmnet below the defaultTextAttributes assignment, 
-        //otherwise the alignment will not make effect
-        topTextField.textAlignment = .center
-        buttomTextField.textAlignment = .center
-        
-        self.topTextField.delegate = memeDelegate
-        self.buttomTextField.delegate = memeDelegate
-        
+        setupTextField(textField: topTextField, memeText: "TOP1")
+        setupTextField(textField: buttomTextField, memeText: "BUTTOM2")
     }
     
     
@@ -187,8 +185,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func subscribeToKeyboardNotifications(){
-        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
     func unsubscribeToKeyboardNotifications(){
