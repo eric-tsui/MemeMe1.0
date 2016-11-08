@@ -25,27 +25,18 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     // MARK: - Variables and Constants
     
     let memeDelegate = memeTextFieldDelegate()
-    var memedImage:UIImage?
-    
-    // MARK: - Actions
-    
-    //Pick an Image
     enum ToolBarButtonItem: Int{
         case Camera = 0
         case Album  = 1
     }
     
+    // MARK: - Actions
+    
+    //Pick an Image
     @IBAction func pickAnImage(_ sender: AnyObject) {
         
         let pickerController = UIImagePickerController()
         pickerController.delegate = self
-        
-        //If there was an existed image in UIImageView
-        if imagePickerVIew.image != nil {
-            //generate a memed image and save to meme struct
-            memedImage = generateMemedImage()
-            saveMeme(memedImage: self.memedImage!)
-        }
         
         //Pick a new image from Camera or Album
         switch ToolBarButtonItem(rawValue: sender.tag)! {
@@ -61,9 +52,12 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     
     //Share the Memed Image
     @IBAction func shareMemedImage(_ sender: AnyObject) {
+        
+        let latestMemedImage = generateMemedImage()
+        
         // define an instance of the ActivityViewController
         // pass the ActivityViewController a memedImage as an activity item
-        let shareVC = UIActivityViewController(activityItems: [memedImage], applicationActivities: nil)
+        let shareVC = UIActivityViewController(activityItems: [latestMemedImage], applicationActivities: nil)
         
         // present the ActivityViewController
         present(shareVC, animated: true, completion: nil)
@@ -86,6 +80,7 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         cancelButton.isEnabled = false
         
         self.subscribeToKeyboardNotifications()
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -96,15 +91,20 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupTextField(textField: topTextField, memeText: "TOP133")
-        setupTextField(textField: buttomTextField, memeText: "BUTTOM2")
+        //Set up TextField attributes
+        setupTextField(textField: topTextField)
+        setupTextField(textField: buttomTextField)
+        
+        //default Meme txt
+        topTextField.text = "TOP"
+        buttomTextField.text = "BUTTOM"
     }
     
     // MARK: - Private methods
     
     // MARK: Generate and Save Meme
     
-    //Generate Memed Image
+    //Generate Memed Image, save it to Meme struct instance, then return the memedImage
     private func generateMemedImage() -> UIImage {
         
         //Hide toolbar and navbar
@@ -114,30 +114,32 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         //Render view to an image
         UIGraphicsBeginImageContext(view.frame.size)
         view.drawHierarchy(in: view.frame, afterScreenUpdates: true)
-        let memedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        let genMemedImage : UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
         //Show toolbar and navbar
         navigatonBar.isHidden = false
         toolBar.isHidden = false
         
-        return memedImage
-    }
-    
-    
-    //Save to Meme Array
-    private func saveMeme(memedImage : UIImage){
-        //Create the meme struct instance
-        let meme = Meme(topText: self.topTextField.text!, buttomText: self.buttomTextField.text!,
-                        originImage: self.imagePickerVIew.image!, memedImage: memedImage)
+        //Save function, to save it as Meme struct
+        func saveMeme(){
+            //Create the Meme struct instance
+            let meme = Meme(topText: topTextField.text!, buttomText: buttomTextField.text!,
+                            originImage: imagePickerVIew.image!, memedImage: genMemedImage)
+            //Append it to the Memes Array in the Application Delegate
+            (UIApplication.shared.delegate as! AppDelegate).memes.append(meme)
+        }
         
-        //Add it to the memes array in the Application Delegate
-        (UIApplication.shared.delegate as! AppDelegate).memes.append(meme)
+        //Save it
+        saveMeme()
+        
+        //Return generated image
+        return genMemedImage
     }
     
     // MARK: Util to setup Text Field
     
-    private func setupTextField(textField: UITextField, memeText: String) {
+    private func setupTextField(textField: UITextField) {
         let memeTextAttributtes = [
             NSStrokeColorAttributeName: UIColor.black,
             NSForegroundColorAttributeName: UIColor.white,
@@ -149,11 +151,15 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         //need to put textAlignmnet after defaultTextAttributes assignment,otherwise the alignment will not make effect
         textField.textAlignment = .center
         textField.delegate = memeDelegate
-        
-        textField.text = memeText
     }
     
     // MARK: Utils to move the view
+
+    private func getKeyboardHeight(_ notification: NSNotification) -> CGFloat {
+        let userInfo = notification.userInfo
+        let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
+        return keyboardSize.cgRectValue.height
+    }
     
     func keyboardWillShow(_ notification: NSNotification) {
         //Only the buttom Text Field needs to adjust the view
@@ -163,23 +169,17 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         }
     }
     
-    func getKeyboardHeight(_ notification: NSNotification) -> CGFloat {
-        let userInfo = notification.userInfo
-        let keyboardSize = userInfo![UIKeyboardFrameEndUserInfoKey] as! NSValue
-        return keyboardSize.cgRectValue.height
-    }
-    
     func keyboardWillHide() {
         //Move the view back when the keyboard is dismissed
         self.view.frame.origin.y = 0
     }
     
-    func subscribeToKeyboardNotifications(){
+    private func subscribeToKeyboardNotifications(){
         NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(MemeViewController.keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
     
-    func unsubscribeToKeyboardNotifications(){
+    private func unsubscribeToKeyboardNotifications(){
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
