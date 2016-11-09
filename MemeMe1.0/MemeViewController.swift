@@ -29,6 +29,10 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         case camera = 0
         case album  = 1
     }
+    //To hide status bar in Swift 3
+    override var prefersStatusBarHidden: Bool {
+        return true
+    }
     
     // MARK: - Actions
     
@@ -99,13 +103,10 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Set up TextField attributes
-        setupTextField(textField: topTextField)
-        setupTextField(textField: buttomTextField)
+        //Set up TextField attributes and defaultText
+        setupTextField(textField: topTextField, defaultText: "TOP")
+        setupTextField(textField: buttomTextField, defaultText: "BOTTOM")
         
-        //default Meme txt
-        topTextField.text = "TOP"
-        buttomTextField.text = "BOTTOM"
     }
     
     // MARK: - Private methods
@@ -145,8 +146,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
     }
     
     // MARK: Util to setup Text Field
-    
-    private func setupTextField(textField: UITextField) {
+    //# TODO: - refine it
+    private func setupTextField(textField: UITextField, defaultText: String) {
         let memeTextAttributtes = [
             NSStrokeColorAttributeName: UIColor.black,
             NSForegroundColorAttributeName: UIColor.white,
@@ -158,6 +159,8 @@ class MemeViewController: UIViewController, UIImagePickerControllerDelegate, UIN
         //need to put textAlignmnet after defaultTextAttributes assignment,otherwise the alignment will not make effect
         textField.textAlignment = .center
         textField.delegate = memeDelegate
+        
+        textField.text = defaultText
     }
     
     // MARK: Utils to move the view
